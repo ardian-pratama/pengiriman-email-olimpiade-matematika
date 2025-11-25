@@ -1,0 +1,84 @@
+import nodemailer from 'nodemailer';
+import fs from 'fs';
+import handlebars from 'handlebars';
+import { getSpreadsheet } from './spreadsheet.js';
+
+const emailTemplate = fs.readFileSync('../templates/email.html', 'utf8');
+
+export async function emailAutomation({
+  spreadsheetUrl,
+  sheetName,
+  emailColumnIndex = 2,
+  nameColumnIndex = 1,
+  statusColumnIndex = 3,
+  emailSubject,
+  emailSender,
+  smtpUser,
+  smtpPass,
+  delay = 10000,
+}) {
+  const template = handlebars.compile(emailTemplate);
+  const sheet = await getSpreadsheet({
+    url: spreadsheetUrl,
+    sheetName,
+  });
+
+  const rows = await sheet.getRows();
+
+  const data = rows
+    .map((row, index) => ({
+      email: row._rawData[emailColumnIndex],
+      nameSchool: row._rawData[nameColumnIndex],
+      rowIndex: index,
+    }))
+    .filter(d => d.email && d.email !== 'Email' && d.email !== '-');
+
+  console.log(`Total email terbaca: ${data.length}`);
+
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: smtpUser,
+      pass: smtpPass,
+    },
+  });
+
+  for (let i = 0; i < data.length; i++) {
+    const { email, nameSchool, rowIndex } = data[i];
+    const row = rows[rowIndex];
+
+    console.log(`Mengirim ke (${i + 1}/${data.length}): ${email}`);
+
+    try {
+      const html = template({ nama_sekolah: nameSchool });
+
+      await transporter.sendMail({
+        from: emailSender,
+        to: email,
+        subject: emailSubject,
+        html,
+      });
+
+      row._rawData[
+        statusColumnIndex
+      ] = `Terkirim pada ${new Date().toLocaleString('id-ID')}`;
+      await row.save();
+    } catch (err) {
+      console.log(`Gagal dikirim ke: ${email}`);
+      console.log(err);
+
+      row._rawData[
+        statusColumnIndex
+      ] = `Gagal terkirim pada ${new Date().toLocaleString('id-ID')}`;
+      await row.save();
+    }
+
+    if (i < data.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  console.log('Selesai mengirim semua email...');
+}
