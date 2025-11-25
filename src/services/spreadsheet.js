@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const credential = fs.readFileSync(
-  path.join(__dirname, '../../service-key.json')
+const credential = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../../service-key.json'), 'utf8')
 );
 
 export async function getSpreadsheet({ url, sheetName }) {
