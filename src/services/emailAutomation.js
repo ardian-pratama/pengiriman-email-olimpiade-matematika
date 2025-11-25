@@ -2,8 +2,16 @@ import nodemailer from 'nodemailer';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import { getSpreadsheet } from './spreadsheet.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const emailTemplate = fs.readFileSync('../templates/email.html', 'utf8');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const emailTemplate = fs.readFileSync(
+  path.join(__dirname, '../templates/email.html'),
+  'utf-8'
+);
 
 export async function emailAutomation({
   spreadsheetUrl,
