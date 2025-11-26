@@ -19,11 +19,10 @@ export async function emailAutomation({
   emailColumnIndex = 2,
   nameColumnIndex = 1,
   statusColumnIndex = 3,
-  emailSubject,
   emailSender,
   smtpUser,
   smtpPass,
-  delay = 10000,
+  delay = 100000,
 }) {
   const template = handlebars.compile(emailTemplate);
   const sheet = await getSpreadsheet({
@@ -37,6 +36,7 @@ export async function emailAutomation({
     .map((row, index) => ({
       email: row._rawData[emailColumnIndex],
       nameSchool: row._rawData[nameColumnIndex],
+      status: row._rawData[statusColumnIndex],
       rowIndex: index,
     }))
     .filter(d => d.email && d.email !== 'Email' && d.email !== '-');
@@ -54,10 +54,14 @@ export async function emailAutomation({
   });
 
   for (let i = 0; i < data.length; i++) {
-    const { email, nameSchool, rowIndex } = data[i];
+    const { email, nameSchool, status, rowIndex } = data[i];
     const row = rows[rowIndex];
 
     console.log(`Mengirim ke (${i + 1}/${data.length}): ${email}`);
+
+    if (status && (status.includes('Terkirim') || status.includes('Gagal'))) {
+      continue;
+    }
 
     try {
       const html = template({ nama_sekolah: nameSchool });
@@ -65,7 +69,7 @@ export async function emailAutomation({
       await transporter.sendMail({
         from: emailSender,
         to: email,
-        subject: emailSubject,
+        subject: 'Undangan Olimpiade Matematika 26 FKIP Universitas Riau',
         html,
       });
 

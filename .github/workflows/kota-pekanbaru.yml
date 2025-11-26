@@ -17,4 +17,4 @@ jobs:
         run: npm install
 
       - name: Run script
-        run: node src/riau/kota-pekanbaru.js
+        run: node src/region/riau/kota-pekanbaru.js
