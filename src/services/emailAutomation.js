@@ -19,6 +19,7 @@ export async function emailAutomation({
   emailColumnIndex = 2,
   nameColumnIndex = 1,
   statusColumnIndex = 3,
+  dateColumnIndex = 4,
   emailSender,
   smtpUser,
   smtpPass,
@@ -73,17 +74,15 @@ export async function emailAutomation({
         html,
       });
 
-      row._rawData[
-        statusColumnIndex
-      ] = `Terkirim pada ${new Date().toLocaleString('id-ID')}`;
+      row._rawData[statusColumnIndex] = 'Terkirim';
+      row._rawData[dateColumnIndex] = new Date().toLocaleString('id-ID');
       await row.save();
     } catch (err) {
       console.log(`Gagal dikirim ke: ${email}`);
       console.log(err);
 
-      row._rawData[
-        statusColumnIndex
-      ] = `Gagal terkirim pada ${new Date().toLocaleString('id-ID')}`;
+      row._rawData[statusColumnIndex] = 'Gagal';
+      row._rawData[dateColumnIndex] = new Date().toLocaleString('id-ID');
       await row.save();
     }
 

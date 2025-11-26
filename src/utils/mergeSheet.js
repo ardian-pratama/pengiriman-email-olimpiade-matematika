@@ -2,8 +2,8 @@ import { getSpreadsheet, writeSpreadsheet } from '../services/spreadsheet.js';
 
 async function mergeSheet() {
   const sheetData = await getSpreadsheet({
-    url: '1gJvbLx-u_c3jtsryWp84rEkVLxsaSD-46LZy1Ige0r8',
-    sheetName: 'KAB. KEPULAUAN MERANTI',
+    url: '1tIoWL33yaJZ2Mv6UI2CmYW8WjBOm-Rt93-cJLkJc1OU',
+    sheetName: 'KOTA BATAM',
   });
   const rawData = await sheetData.getRows();
   const banned = ['nama', 'nama sekolah', 'sederajat', 'kecamatan'];
@@ -25,7 +25,7 @@ async function mergeSheet() {
 
   await writeSpreadsheet({
     url: '19rV_Z1oY9EhMh-fUKLFBQ-e_ZotcgFkLavuMZDjjnjg',
-    sheetName: 'Kabupaten Kepulauan Meranti',
+    sheetName: 'Kota Batam',
     data,
   });
 }
