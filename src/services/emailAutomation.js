@@ -23,7 +23,7 @@ export async function emailAutomation({
   emailSender,
   smtpUser,
   smtpPass,
-  delay = 100000,
+  delay = 60000,
 }) {
   const template = handlebars.compile(emailTemplate);
   const sheet = await getSpreadsheet({
@@ -54,7 +54,7 @@ export async function emailAutomation({
     },
   });
 
-  for (let i = 0; i < data.length; i++) {
+  for (let i = 0; i <= 300; i++) {
     const { email, nameSchool, status, rowIndex } = data[i];
     const row = rows[rowIndex];
 
@@ -78,7 +78,6 @@ export async function emailAutomation({
       row._rawData[dateColumnIndex] = new Date().toLocaleString('id-ID');
       await row.save();
     } catch (err) {
-      console.log(`Gagal dikirim ke: ${email}`);
       console.log(err);
 
       row._rawData[statusColumnIndex] = 'Gagal';
