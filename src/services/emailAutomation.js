@@ -54,7 +54,7 @@ export async function emailAutomation({
     },
   });
 
-  for (let i = 0; i <= 300; i++) {
+  for (let i = 0; i < Math.min(300, data.length); i++) {
     const { email, nameSchool, status, rowIndex } = data[i];
     const row = rows[rowIndex];
 

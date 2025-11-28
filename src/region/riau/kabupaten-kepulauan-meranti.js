@@ -4,7 +4,7 @@ emailAutomation({
   spreadsheetUrl: '19rV_Z1oY9EhMh-fUKLFBQ-e_ZotcgFkLavuMZDjjnjg',
   sheetName: 'Kabupaten Kepulauan Meranti',
   emailSender:
-    '"Olimpiade Matematika 26" <fkipunrii.om26@gmail.com>',
-  smtpUser: 'fkipunrii.om26@gmail.com',
-  smtpPass: 'ymurgxxzyqmlsfmv',
+    '"Olimpiade Matematika 26" <fkip.om26.unri@gmail.com>',
+  smtpUser: 'fkip.om26.unri@gmail.com',
+  smtpPass: 'oaihyfldgtjmxrqg',
 });
