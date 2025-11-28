@@ -40,7 +40,8 @@ export async function emailAutomation({
       status: row._rawData[statusColumnIndex],
       rowIndex: index,
     }))
-    .filter(d => d.email && d.email !== 'Email' && d.email !== '-');
+    .filter(d => d.email && d.email !== 'Email' && d.email !== '-' && d.status
+    !== 'Terkirim' && d.status !== 'Gagal');
 
   console.log(`Total email terbaca: ${data.length}`);
 
@@ -54,7 +55,7 @@ export async function emailAutomation({
     },
   });
 
-  for (let i = 0; i < Math.min(300, data.length); i++) {
+  for (let i = 0; i < 301; i++) {
     const { email, nameSchool, status, rowIndex } = data[i];
     const row = rows[rowIndex];
 
