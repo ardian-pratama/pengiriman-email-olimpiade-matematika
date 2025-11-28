@@ -40,8 +40,15 @@ export async function emailAutomation({
       status: row._rawData[statusColumnIndex],
       rowIndex: index,
     }))
-    .filter(d => d.email && d.email !== 'Email' && d.email !== '-' && d.status
-    !== 'Terkirim' && d.status !== 'Gagal');
+    .filter(
+      d =>
+        d.email &&
+        d.email !== 'Email' &&
+        d.email !== '-' &&
+        d.email !== '' &&
+        d.status !== 'Terkirim' &&
+        d.status !== 'Gagal'
+    );
 
   console.log(`Total email terbaca: ${data.length}`);
 
@@ -55,15 +62,11 @@ export async function emailAutomation({
     },
   });
 
-  for (let i = 0; i < 301; i++) {
+  for (let i = 0; i < data.length; i++) {
     const { email, nameSchool, status, rowIndex } = data[i];
     const row = rows[rowIndex];
 
     console.log(`Mengirim ke (${i + 1}/${data.length}): ${email}`);
-
-    if (status && (status.includes('Terkirim') || status.includes('Gagal'))) {
-      continue;
-    }
 
     try {
       const html = template({ nama_sekolah: nameSchool });
