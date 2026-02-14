@@ -2,8 +2,8 @@ import { getSpreadsheet, writeSpreadsheet } from '../services/spreadsheet.js';
 
 async function mergeSheet() {
   const sheetData = await getSpreadsheet({
-    url: '1CI4vKT0mmDLhwkXFjGf8oETxPSPjy9jSeLn8b-WiOKU',
-    sheetName: 'Pangkal Pinang',
+    url: '1jZttl1oCxnCRKhphiFNohfKI1F1IxQTdtC5-WqR7hxg',
+    sheetName: 'Kab. Bangli',
   });
   const rawData = await sheetData.getRows();
   const banned = [
@@ -13,11 +13,13 @@ async function mergeSheet() {
     'kecamatan',
     'no',
     'email',
+    'kabupaten',
+    '/',
   ];
   const data = rawData
     .map(r => {
-      const nama = r._rawData[1];
-      let email = r._rawData[2];
+      let nama = (r._rawData[1] || '').trim();
+      let email = (r._rawData[2] || '').trim();
 
       if (email === '-') email = '';
 
@@ -32,7 +34,7 @@ async function mergeSheet() {
 
   await writeSpreadsheet({
     url: '19rV_Z1oY9EhMh-fUKLFBQ-e_ZotcgFkLavuMZDjjnjg',
-    sheetName: 'Kabupaten Pangkal Pinang',
+    sheetName: 'Kabupaten Bangli',
     data,
   });
 }

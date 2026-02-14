@@ -3,6 +3,7 @@ import fs from 'fs';
 import handlebars from 'handlebars';
 import { getSpreadsheet } from './spreadsheet.js';
 import path from 'path';
+import dns from 'dns/promises';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,6 +13,17 @@ const emailTemplate = fs.readFileSync(
   path.join(__dirname, '../templates/email.html'),
   'utf-8'
 );
+
+async function isEmailDomainValid(email) {
+  const domain = email.split('@')[1];
+
+  try {
+    const records = await dns.resolveMx(domain);
+    return records && records.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
 
 export async function emailAutomation({
   spreadsheetUrl,
@@ -23,9 +35,10 @@ export async function emailAutomation({
   emailSender,
   smtpUser,
   smtpPass,
-  delay = 60000,
+  delay = 15000,
 }) {
   const template = handlebars.compile(emailTemplate);
+
   const sheet = await getSpreadsheet({
     url: spreadsheetUrl,
     sheetName,
@@ -47,7 +60,8 @@ export async function emailAutomation({
         d.email !== '-' &&
         d.email !== '' &&
         d.status !== 'Terkirim' &&
-        d.status !== 'Gagal'
+        d.status !== 'Gagal' &&
+        d.status !== 'Invalid'
     );
 
   console.log(`Total email terbaca: ${data.length}`);
@@ -62,11 +76,25 @@ export async function emailAutomation({
     },
   });
 
-  for (let i = 0; i < data.length; i++) {
-    const { email, nameSchool, status, rowIndex } = data[i];
+  const limit = data.length;
+
+  for (let i = 0; i < limit; i++) {
+    const { email, nameSchool, rowIndex } = data[i];
     const row = rows[rowIndex];
 
-    console.log(`Mengirim ke (${i + 1}/${data.length}): ${email}`);
+    console.log(`(${i + 1}/${limit}) validasi domain: ${email}`);
+
+    const domainValid = await isEmailDomainValid(email);
+
+    if (!domainValid) {
+      row._rawData[statusColumnIndex] = 'Invalid';
+      row._rawData[dateColumnIndex] = new Date().toLocaleString('id-ID');
+      await row.save();
+
+      continue;
+    }
+
+    console.log(`Mengirim ke: ${email}`);
 
     try {
       const html = template({ nama_sekolah: nameSchool });
@@ -82,17 +110,15 @@ export async function emailAutomation({
       row._rawData[dateColumnIndex] = new Date().toLocaleString('id-ID');
       await row.save();
     } catch (err) {
-      console.log(err);
-
       row._rawData[statusColumnIndex] = 'Gagal';
       row._rawData[dateColumnIndex] = new Date().toLocaleString('id-ID');
       await row.save();
     }
 
-    if (i < data.length - 1) {
+    if (i < limit - 1) {
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 
-  console.log('Selesai mengirim semua email...');
+  console.log('Selesai mengirim email...');
 }
